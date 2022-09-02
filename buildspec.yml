@@ -1,0 +1,41 @@
+{
+  'version': '0.2',
+  'phases':
+    {
+      'install': { 'commands': ['docker --version', 'node --version'] },
+      'pre_build':
+        {
+          'commands':
+            [
+              'echo Logging in to Amazon ECR...',
+              'eval $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)',
+            ],
+        },
+      'build':
+        {
+          'commands':
+            [
+              'echo Build started on `date`',
+              'printenv',
+              'docker build -t $IMAGE_NAME .',
+              'docker images -a',
+              'echo Building the Docker image...',
+              'docker tag $IMAGE_NAME:latest $ECR_REPO:$IMAGE_TAG',
+              'docker images -a',
+            ],
+        },
+      'post_build':
+        {
+          'commands':
+            [
+              'echo Build completed on `date`',
+              'echo Pushing the Docker image...',
+              'aws ecr get-login --no-include-email --region eu-west-1',
+              'docker push $ECR_REPO:$IMAGE_TAG',
+              'echo Writing image definitions file...',
+              'printf ''[{"name":"%s","imageUri":"$ECR_REPO:$IMAGE_TAG"}]'' $CONTAINER_NAME > imagedefinitions.json',
+            ],
+        },
+    },
+  'artifacts': { 'files': ['imagedefinitions.json'] },
+}
