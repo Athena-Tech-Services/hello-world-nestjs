@@ -33,7 +33,7 @@
               'aws ecr get-login --no-include-email --region eu-west-1',
               'docker push $ECR_REPO:$IMAGE_TAG',
               'echo Writing image definitions file...',
-              'printf ''[{"name":"%s","imageUri":"$ECR_REPO:$IMAGE_TAG"}]'' $CONTAINER_NAME > imagedefinitions.json',
+              'printf ''[{"name":"%s","imageUri":"%s"}]'' $CONTAINER_NAME $ECR_REPO:$IMAGE_TAG > imagedefinitions.json',
             ],
         },
     },
